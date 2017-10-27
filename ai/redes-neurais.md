@@ -19,8 +19,8 @@ Podemos passar o threshold ara o outro lado da equação e substituí-lo pelo _b
 O _bias_ é a medida do quão fácil é levar o perceptron para produzir como saída 1, ou seja, quão fácil atingir o threshold. Pensando em termos biológicos, o quão fácil é ativar o perceptron. Um perceptron com um valor alto no bias é muito fácil ativá-lo e um bias bem negativo torna bem difícil ativá-lo.
 
 >Dado um perceptron que recebe 3 inputs (i1, i2 e i3) e gera um output, podemos:
-Soma = i1 * w1 + i2 * w2 + i3 * w3 ou w·x
-se Soma > threshold então output = 1 senão output = 0
+>Soma = i1 * w1 + i2 * w2 + i3 * w3 ou w·x
+>se Soma > threshold então output = 1 senão output = 0
 
 Variando os weights e o threshold obtemos diferentes modelos de tomada de decisão para um perceptron e que, quandro agrupado, também varia o modelo da rede toda.
 
@@ -51,8 +51,26 @@ A variação do output é uma função linear das variações de weight e bias. 
 
 
 
-## Arquitetura de uma Rede Neural
 
+## Arquitetura de uma Rede Neural
+A camada de neurônios mais a esquerda é chamada input layer.
+A camada mais a direita é chamada output layer.
+As camadas do meio são chamadas de hidden layer.
+Redes neurais com várias camadas são chamadas multilayer perceptrons ou MLP, independente se forem formadas por perceptrons ou neurônios sigmoid.
+O design das input e output layers são bem diretos, diretamente ligadas ao design do problema (se for para identificar se numa imagem existe o número 1, então temos a quantidade de inputs igual à resolução da imagem e um output para informar se tem ou não o número na imagem.
+O design das hidden layers é uma arte e existe poucas regras de ouro. Pesquisadores tem desenvolvidos vários design heurísticos que ajudam a obter determinado comportamento (por exemplo, determinar a relação de quantidade de hidden layeres com o tempo de treino).
+Modelos:
+
+### Redes Neurais Feedforward
+São redes que os outputs de uma camada são os inputs da próxima camadas.
+Nelas não existe loop, ou seja, nenhuma camada produz outputs que são inputs de uma camada anterior.
+Os algoritmos de aprendizado são mais poderosos que os do RNN.
+
+
+### Redes Neurais Recorrente (RNN)
+Possuem loops, ou seja, uma camada a frente produz output que serve de input para uma camada anterior.
+A ideia neste modelo é ter neurônios que ativam somente durante um tempo limitado antes de se tornarem ociosos. Essa ativação estimula outros neurônios que também são ativados por um tempo limitado. Criando assim uma cascata de ativação assíncrona, o que não cria loops.
+Os seus algoritmos de aprendizado não são tão poderosos quanto os do Feedforward porém seu modelo de funcionamento está mais próximo ao do cérebro do que o Feedforward está.
 
 
 ### Propostas para exercitar
