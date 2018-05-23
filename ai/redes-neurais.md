@@ -10,7 +10,7 @@ Recebe um ou mais inputs e produz um output.
 
 Para calcular o output, o perceptron utiliza pesos (_weights_) associados a cada input (w1, w2, ..., wn) que nada mais são que números reais que expressão a importância do respectivo input para o output, ou seja, basicamente pesa as evidências para tomar uma decisão.
 Os inputs são valores 0 ou 1, o que o torna nem um pouco sensível.
-O output do perceptron é determinado se o valor do resultado da soma dos inputs multiplicados pelos seus pesos (denotado por _w·x_ onde _w_ e _x_ são vetores com wights e inputs respectivamente) é maior ou menor que algum valor limite (_threshold_).
+O output do perceptron é determinado pelo resultado da soma dos inputs multiplicados pelos seus weights (denotado por _w·x_ onde _w_ e _x_ são vetores com wights e inputs respectivamente) é maior ou menor que algum valor limite (_threshold_).
 
 Reformulando, temos: ```output = { 0 se w·x <= threshold, 1 se w·x > threshold }```
 Podemos passar o threshold ara o outro lado da equação e substituí-lo pelo _bias_ do perceptron (b = -threshold).
@@ -44,7 +44,7 @@ Os Sigmoids possuem a mesma estrutura dos perceptrons, porém seus inputs e outp
 A saída de um sigmoid é data pela função de ativação sigma: ```sigma(w·x + b)```
 Onde _sigmoid_ é a função (as vezes referenciada função logística): ```sigma(z) = 1 / (1 + e ^ -z)```
 
-Quandos o valor de _w·x + b_ é muito negativo ou muito positivo, os outputs são bem próximos de 0 e 1, assim como no perceptrons. Porém quando o valor tem um tamanho modestro, daí a saída é diferente pois varia entre 0 e 1, e essa pequena mundaça causa a forma em S da função quando plotada (ao contrário da função do perceptron que praticamente tem formato digital).
+Quandos o valor de _w·x + b_ é muito negativo ou muito positivo, os outputs são bem próximos de 0 e 1 respectivamente, assim como no perceptrons. Porém quando o valor tem um tamanho modestro, daí a saída é diferente pois varia entre 0 e 1, e essa pequena mundaça causa a forma em S da função quando plotada (ao contrário da função do perceptron que praticamente tem formato digital).
 
 Essa curva suave em S permite que pequenas mudanças no weight ou no bias cause pequena mudança no output.
 A variação do output é uma função linear das variações de weight e bias. Essa lineariedade facilita a escolha/descoberta dessas variações para atingir a variação desejada no output.
@@ -66,11 +66,21 @@ São redes que os outputs de uma camada são os inputs da próxima camadas.
 Nelas não existe loop, ou seja, nenhuma camada produz outputs que são inputs de uma camada anterior.
 Os algoritmos de aprendizado são mais poderosos que os do RNN.
 
-
 ### Redes Neurais Recorrente (RNN)
 Possuem loops, ou seja, uma camada a frente produz output que serve de input para uma camada anterior.
 A ideia neste modelo é ter neurônios que ativam somente durante um tempo limitado antes de se tornarem ociosos. Essa ativação estimula outros neurônios que também são ativados por um tempo limitado. Criando assim uma cascata de ativação assíncrona, o que não cria loops.
 Os seus algoritmos de aprendizado não são tão poderosos quanto os do Feedforward porém seu modelo de funcionamento está mais próximo ao do cérebro do que o Feedforward está.
+
+
+
+## Aprendizado
+
+#### Função de Custo (ou perda)
+Função para quantificar o quão próximo o output de uma rede neural está da inputs de treinamento.
+
+### Gradient Descent
+
+
 
 
 ### Propostas para exercitar

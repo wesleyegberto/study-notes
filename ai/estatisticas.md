@@ -1,9 +1,47 @@
 # Estatística
 
 ## Conceitos
+
+### Definições
+
+* Tratamento: em um experimento, é a maneira que o pesquisador manipula/interage com o grupo em estudo (indivíduos). Dependendo do experimento e a forma do tratamento podemos ter resultados diferentes.
+
+* Construto: é qualquer coisa que é difícil para medir pois ela pode ser medida de várias maneiras diferentes (felicidade, fome, gasolina [galão ou litros]).
+* Definição operacional do construto: é a unidade de medida que está sendo usada para o construto, pois sem ela não seria possível medir.
+
+* População: todos os indíviduos do grupo;
+* Amostra: parte dos indíviduos do grupo.
+
+* Parâmetro: Define uma característica da população;
+* Estatística: Define uma característica da amostra.
+
+* Mostrar relações: faça um estudo observacional ou pesquisa de campo (survey);
+* Mostras causalidade: faça um experimento controlado.
+
+* Estudo observacional: quando um pesquisador observa um grupo de indivíduos e não introduz um tratamento.
+
+* Grupo de tratamento: é o grupo do estudo que recebe níveis variados das variáveis independentes, esses grupos são usados para medir o efeito do tratamento.
+
+* Grupo de controle: é o grupo do estudo que não recebe tratamento, este grupo é usado como base de comparação com os grupos de tratamento.
+
+* Placebo: algo que é dado ao grupo de controle para eles pensarem que estão recebendo tratamento.
+
+
+#### Blinding e Double Blinding
+É uma técnica usada para reduzir o viés/tendência em um experimento.
+Blinding é quando apenas os individuos não sabem se receberam o tratamento ou o placebo.
+Double blinding é quando nem os indivíduos e nem os pesquisadores sabem quem recebeu o tratamento e quem recebeu o placebo.
+
+
+
+
+### Tipos de variáveis:
+* Independente: é a variável do estudo que o pesquisador escolheu para manipular;
+* Dependente: é a variável do estudo que o pesquisador escolheu para medir/verificar durante o experimento.
+
+### Tipos de dados
 Para aplicar um teste estatístico é necessário conhecer os seus tipos de dados e curva normal para determinar o melhor teste.
 
-#### Tipos de dados
 * Dados categóricos
   * Um diferente do outro;
   * Sem peso ou relação.
