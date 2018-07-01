@@ -175,14 +175,14 @@ Podemos representar a saída da rede neural como:
 \[
 	p(y = c | x)
 \]
-onde \emph{c} é um vetor com as probabilidades do input \emph{x} percencer a uma determinada classe (o index do vetor representa uma das classes em $\{ 1, 2, ..., C \}$ onde).
+onde \emph{c} é um vetor com as probabilidades do input \emph{x} percencer a uma determinada classe (o index do vetor representa uma das classes em $\{ 1, 2, ..., C \}$).
 
 A rede neural é divida em várias camadas compostas por vários neurônios artificiais, a camada de neurônios mais a esquerda é chamada input layer, a camada mais a direita é chamada output layer e as camadas do meio são chamadas de hidden layer.
 As funções de ativação dos neurônios podem variar de camada para camada, o que proporciona um maior poder à rede neural.
 
 Redes neurais com várias camadas são chamadas multilayer perceptrons ou \emph{MLP}, independente se forem formadas por perceptrons ou neurônios sigmoid.
 
-O design das input e output layers são bem diretos, diretamente ligadas ao design do problema (se for para identificar se numa imagem existe o número 1, então temos a quantidade de inputs igual à resolução da imagem e um output para informar se tem ou não o número na imagem.
+O design das input e output layers são bem diretos, diretamente ligadas ao design do problema (se for para identificar se numa imagem existe o número 1, então temos a quantidade de inputs igual à resolução da imagem e um output para informar se tem ou não o número na imagem).
 	
 O design das hidden layers é uma arte e existem poucas regras de ouro. Pesquisadores tem desenvolvidos vários design heurísticos que ajudam a obter determinado comportamento (por exemplo, determinar a relação de quantidade de hidden layeres com o tempo de treino).
 
@@ -201,7 +201,7 @@ Uma NN não é fácil de debugar pois quase sempre não sabemos a melhor forma d
 Durante o treinamento a rede pode gerar uma representação abstrata dos dados e essa representação é utilizada para realizar uma previsão ou classificação. Essa abstração é difícil de se prever de como fica arquitetada entre as layers da rede (níveis hierárquicos de abstração). Como exemplo, imagine uma rede treinada para identicar objetos, pode ser que as primeiras camadas fiquem responsáveis por identificar linhas e pontos nas formas, as camadas seguintes fiquem responsável por identificar formas mais abstratas como formas geométricas, e assim por diante. \linebreak
 Podemos explorar o que cada camada está fazendo através do aumento dos valores dos seus \emph{weights} e \emph{biases} e ver o output dela (vide Deep Dream).
 
-Essa estrutura de IA que utilizaca camadas para representação é chamada \textbf{Deep Learning}.
+Essa estrutura de IA que utiliza camadas para representação é chamada \textbf{Deep Learning}.
 
 
 
@@ -225,7 +225,7 @@ Os seus algoritmos de aprendizado não são tão poderosos quanto os do Feedforw
 \section{Algoritmos}
 
 \subsection{Univariate Linear Regression}
-É um modelo para modelar o relacionamento entre uma variável numérica \emph{y} (variável dependente) e uma variável explicativa (uma feature, variável independente) \emph{x}.
+Usado para modelar o relacionamento entre uma variável numérica \emph{y} (variável dependente) e uma variável explicativa (uma feature, variável independente) \emph{x}.
 A partir de uma dataset de treinamento, utilizamos um algoritmo de aprendizado para poder obter uma função hipótese que mapeie \emph{x's} para \emph{y's}.
 \[h:X \rightarrow Y\]
 A função h tem o seguinte formato:
@@ -233,7 +233,7 @@ A função h tem o seguinte formato:
 onde $\theta_i$'s são parâmetros do modelo.
 
 Para obter essa função \emph{h} é executado um processo estatístico chamado \emph{Análise de Regressão (regression analysis)} para estimar o relacionamento entre as variáveis independentes \emph{x's} e a variável dependente \emph{y}.
-Para obter a função precisamos encontrar os valores $\theta_i$ para que $h_\theta (x^{(i)} \simeq y^{(i)}$.
+Para obter a função precisamos encontrar os valores $\theta_i$ para que $h_\theta (x^{(i)}) \simeq y^{(i)}$.
 
 O ato de tentar encontrar os valores ideais para $\theta_i$ é um problema de minimização, sendo assim, temos várias funções que podemos usar.
 
@@ -244,6 +244,8 @@ Para minimizar $\theta_i$ podemos usar a função Squared Error Function que med
 \[
 Minimizar \ \theta_0, \theta_1 \rightarrow C (\theta_0, \theta_1) = \frac{1}{2m} \sum_{i=1}^m ( h_\theta (x^{(i)}) - y^{(i)}) ^ 2
 \]
+
+Com essa medida da acurácia podemos então utilizar algumas técnicas de minimização da função para poder melhorar nossos parâmetros.
 
 \subsubsection{Gradiente Descendente}
 Para nos ajudar a minimizar a função usamos o algoritmo gradiente descendente para encontrar o local mínimo da função de custo.
@@ -313,7 +315,7 @@ Minimizar \ \Theta \rightarrow C (\Theta) = \frac{1}{2m} (X \Theta - y)^T (X \Th
 \]
 
 \subsubsection{Gradiente Descendente}
-Equivalente à Linear Regression, para minimizar a função de custo $C$ utilziamos a derivada parcial de cada parâmetro do vetor $\Theta$ conforme:
+Equivalente à Linear Regression, para minimizar a função de custo $C$ utilizamos a derivada parcial de cada parâmetro do vetor $\Theta$ conforme:
 \[
 \theta_j := \theta_j - \eta \frac{1}{m} \sum\limits_{i=1}^{m} (h_\theta(x^{(i)}) - y^{(i)}) \cdot x_j^{(i)}
 \]
@@ -330,7 +332,7 @@ Nele fazemos a predição da classe \emph{y} em um conjunto de valores discretos
 
 Acima temos um exemplo de um modelo que classifica as flutas laranja na classe 0 e as uvas na classe 1, onde o threshold tem valor de 3,5.
 
-No caso de um classificado binário, onde queremos classificar um input \emph{x} como 0 ou 1, teremos $y \in \{0, 1\}$.
+No caso de um classificador binário, onde queremos classificar um input \emph{x} como 0 ou 1, teremos $y \in \{0, 1\}$.
 Dizemos que $0$ é a \emph{classe negativa} e $1$ é a \emph{classe positiva}.
 
 Para que nosso modelo tenha um \emph{output y} entre os valores discretos das classes utilizamos uma função logística que defina os limites do nosso output.
@@ -383,7 +385,7 @@ Nela temos as seguintes propriedades:
 \begin{align*}
 	& \mathrm{Cost}(h_\theta(x),y) = 0 \text{ se } h_\theta(x) = y \\
 	& \mathrm{Cost}(h_\theta(x),y) \rightarrow \infty \text{ se } y = 0 \; \mathrm{e} \; h_\theta(x) \rightarrow 1 \\
-	& \mathrm{Cost}(h_\theta(x),y) \rightarrow \infty \text{ se } y = 1 \; \mathrm{e} \; h_\theta(x) \rightarrow 0
+	& \mathrm{Cost}(h_\theta(x),y) \rightarrow -\infty \text{ se } y = 1 \; \mathrm{e} \; h_\theta(x) \rightarrow 0
 \end{align*}
 
 Podemos escrever a função de custo na forma compacta:
@@ -397,7 +399,7 @@ Abaixo temos a plotagem das função de custo $C$ em função da classe prevista
 
 
 \subsubsection{Gradiente Descendente}
-Os passos de aplicaçao são iguais ao da Linear Regression porém divido a mudança da função de custo teremos apenas uma mudança na derivação utilizada.
+Os passos de aplicaçao são iguais ao da Linear Regression porém devido a mudança da função de custo teremos apenas uma mudança na derivação utilizada.
 \[
 \theta_j = \theta_j - \eta \frac{\partial}{\partial \theta_j} C(\Theta)
 \]
@@ -409,7 +411,6 @@ Então teremos no fim:
 \[
 \theta_j := \theta_j - \frac{\alpha}{m} \sum_{i=1}^m (h_\theta(x^{(i)}) - y^{(i)}) x_j^{(i)}
 \]
-alpha
 Podemos reescrever na forma vetorizada:
 \[ h = g(X \Theta) \]
 \[
@@ -537,7 +538,7 @@ Podemos normalizar nosso input fazendo um \emph{scaling} dos dados utilizando du
 \\
 
 \textbf{Feature Scaling}\\
-Para cada feature do nosso input \emph{x} aplicamos a divisão da feature pelo su range, conforme a seguinte fórmula:
+Para cada feature do nosso input \emph{x} aplicamos a divisão da feature pelo seu range, conforme a seguinte fórmula:
 \[
 x_i = \frac{x_i}{R_i}
 \]
@@ -577,10 +578,11 @@ Minimizar \ \Theta \rightarrow C (\Theta) = \frac{1}{2m} \sum_{i=1}^m ( h_\theta
 \]
 onde $\lambda$ é o parâmetro da regularização que define o custo para os parâmetros, ela causará uma variação no valor dos parâmetros durante o treinamento.
 
-Se $\lambda$ for muito grande pode causar um underfit (pois $h_\theta (x) \approx 0$. Se for muito baixo não causa nenhuma diferença (como se não houvesse regularização pois o custo poderá ser 0).\\
+Se $\lambda$ for muito grande pode causar um underfit (pois $h_\theta (x) \approx 0$). Se for muito baixo não causa nenhuma diferença (como se não houvesse regularização pois o custo poderá ser 0).\\
 
 
 \textbf{Regressão Linear Regularizada}
+
 Para aplicar regulizarização na Regressão Linear precisamos atualizar os parâmetros no gradiente descendente da seguinte forma:
 \[
 \theta_j := \theta_j - \alpha	 \left[ \frac{1}{m} \sum_{i=1}^m ( h_\theta(x^{(i)}) - y^{(i)})x_j^{(i)} + \frac{\lambda}{m} \theta_j \right]
