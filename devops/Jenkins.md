@@ -1,11 +1,42 @@
 # Jenkins
 
 ## Conceitos
+É um servidor de integração contínua.
+A Integração Contínua permite antecipar problemas no código através da automatização da
+compilação, execução de testes, empacotamento da aplicação e publicação.
+Assim se houver algum erro que foi commitado que faça com que o código não compile ou
+algum teste falhe, o Jenkis irá nos informar.
+Para executar o Jenkis usamos:
+`java -jar jenkins.war --httpPort=8180`
+
+
 
 ### Job
 * É uma tarefa que o Jenkins tem que executar;
 * Pode ter parâmetros, ter procedimentos para executar antes ou depois da tarefa;
 * Pode ter um ou mais builds.
+
+#### Abas
+* Geral
+  * Permite definir informações e configurações gerais sobre o projeto e sobre o build;
+  * Informações como nome, descrição, apelido para exibir no Jenkins, se é projeto do GitHub;
+  * Configurações como número máximo de tentativas do checkout do SCM, desabilitar os builds temporariamente, definir se o build é parametrizado (se o usuário vai poder colocar inputs como massa de testes, release notes, etc), se deve descartar informações antigas para economizar disco (descarte por tempo ou quantidade), se deve manter log dos builds mesmo com a limpeza, permitir builds em paralelos, bloquear build se houver algum build de uma dependência ou job filho em execução, etc;
+* Gerenciamento do Código Fonte
+  * Permite definir o SCM (Git, SVN, etc) do projeto ou superprojeto (com módulos, .gitmodules);
+  * Também podemos definir se o Job atuará apenas em uma branch ou se atuará em todas as branches (criando um subjob para cada uma);
+  * Também podemos fazer com que o Job trabalhe em cima do merge de todas as branches (usando a opção Comportamento Adicional) e neste caso é ideal que exista um branch separado para o Jenkins usar como destino do merge e só ele deve efetuarcommit nesse branch. Assim sempre que o job finalizar com sucesso ele pode dar um push para garantir que esta branch esteja atualizado no repositório;
+  * Também permite configurar vários Comportamentos Adicionais como clean antes ou depois do checkout, checkout para um diretório ou uma branch específica, fazer um merge, ignorar/pular os commits de determinados usuários ou determinado path ou que tenha determinada mensagem, etc;
+* Triggers de Builds
+  * Permite configurar quando serão feito os builds;
+  * Podemos usar intervalo de tempo ou horário específico (notação cron), disparo de build remotamente (usando URL para ser chamada externamente), build após a construção de outro projeto, Git hooks, etc;
+* Ambiente de Build
+* Build
+  * Permite configurar as ações que serão executadas pelo job;
+  * Essas ações podem ser fases do Maven, execução de Shell scripts, scripts Ant, script Gradle, argumentos para as ferramentas e etc;
+  * Com plugins podemos configurar ações mais específicas como Docker, Vagrant, etc.
+* Ação Pós-Build
+  * Podemos configurar ações após todo o build do sistema (compilação, execução de testes e empacotamento);
+  * Essas ações podem ser publicação remota, notificação por e-mail, limpar workspace, disparar build de outro projeto, publicar relatórios de testes, efetuar push de um merge pré-build, etc;
 
 ### Workspace
 * É a área de trabalho existente em cada job.
@@ -36,6 +67,22 @@
 
 
 
+## Configuração
+Na primeira inicialização, durante o boot, o Jenkins gerará uma chave para ser usada durante a
+configuração do usuário administrador.
+
+Após criar o usuário e efetuar login, temos que configurar as variáveis de ambiente ou caminho
+do Java e do Maven para que ele possa compilar, testar e empacotar a aplicação. Lá também
+podemos configurar o Docker, Gradle, Ant e o Git.
+
+Para configurar vai no menu Gerenciar Jenkins > Global Tools Configuration.
+Também precisamos configurar a notifação de e-mail para o Jenkins. Em Gerenciar Jenkins >
+Configurar Sistema temos a seção de Notificação de E-mail onde definimos configurações do
+servidor SMTP e os dados de acesso. E na seção Jenkins Location, também precisamos
+configurar o nome do remetente para fazer mais sentido.
+
+
+
 ## Plugins
 Podemos instalar plugins ou criar uma (utilizando framework Jelly)
 
@@ -63,22 +110,22 @@ No job que precise do X11 precisamos:
 * E, opcionalmente, podemos marcar a opção para logar o output.
 Também podemos dar um nome para o display, configurar a resolução e suporte de cores.
 
-## Groovy
+### Groovy
 * Permite rodas as tasks do Groovy;
 * Podemos fazer scripts para controlar a execução (falhando ou não o build) e exibindo mensagens no log ou no resumo do job.
 
-## Gradle
+### Gradle
 * Permite rodar rotinas em Groovy;
 * Interessante para usar com Flyway.
 
-## Backup
+### Backup
 * Faz backup e restaura arquivos de configuração.
 
-## Build Timeout
+### Build Timeout
 * Define um timeout para os builds;
 * No job podemos marcar a opção "Abort the build if it's stuck" e selecionar uma estratégia e uma ação de timeout.
 
-## Job Configuration History
+### Job Configuration History
 * Grava o histórico de configurações, permitindo comparar e restaurar versões antigas.
 
 
