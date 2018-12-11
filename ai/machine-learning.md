@@ -40,6 +40,8 @@ Para variáveis categoricas podemos usar variáveis Dummies, onde presentamos o 
 
 
 
+### K-Fold
+Consiste em dividir a base de treino em algumas partes para que não haja influência da ordem dos dados.
 
 
 ## Algoritmos
@@ -53,6 +55,7 @@ Para variáveis categoricas podemos usar variáveis Dummies, onde presentamos o 
   * Probabilidade: sorteia um número de 1 a 100, se for <= 70 então é X se for > 70 então é Y.
 * Caso tenha mais de uma características, é utilizado a multiplicação dos resultados individuais de cada característica.
 * Notação: P(comprar | brasil), probabilidade de comprar dado a característica brasil
+
 
 
 ## Libs

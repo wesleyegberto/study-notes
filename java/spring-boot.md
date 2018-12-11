@@ -16,5 +16,16 @@ spring.config.name=myconfig.properties
 spring.config.location=/path/to/the/file
 ```
 
-* Os endpoints de gerencimento a partir da versão 2.0 estão desativados, para ativá-los basta adicionar no `.properties`:
+* Os endpoints de gerenciamento a partir da versão 2.0 estão desativados, para ativá-los basta adicionar no `.properties`:
 `management.endpoints.web.exposure.include=*`
+
+
+### Web Async e Non-Blocking
+
+#### Fluxo da Requisição
+* Poucas threads (1-4 dependendo do # de cores) fazendo polling no seletor que olha os canais nas conexões em busca de atividade de IO;
+* Quando encontra atividade IO é invocado o método `handle` da conexão e uma thread do pool é alocada para processar;
+* Thread tenta ler e converter o conteúdo da conexão para um HTTP Connection. Se os headers da conexão estão completos, a thread segue chamando o handler do request (que eventualmente chega no Servlet) sem esperar o resultado;
+* No Servlet, mesmo API de IO sendo blocking, através de callbacks, as operações do I/O no HttpInputStream e HttpOutputStream são async e non-blocking.
+
+
