@@ -55,8 +55,12 @@ Aplicações que consomem as mensagens.
 * Uma entidade lógica que categoriza os registros foram publicados.
 * Todos os tópicos são multi-subscriber, podendo ter 0-N subscribers.
 * Para cada tópico, o cluster Kafka mantém um ou mais logs particionados. Cada partição é um sequência ordenada (pelo timestamp) e imutável de registros que é continuadamente escrita (estrutura de log commit).
-* Cada registro nas partições recebe um ID sequencial chamado **Offset** que é unico dentro de uma partição.
-*  O Kafka persiste todos os registros (consumidos ou não) de um tópico durante um período de tempo configurado (**retention policy**, tem valor padrão de 168h ou 7d que é configurável por tópico). Após esse tempo o registro é removido para liberar espaço. Isso não afeta a performance do Kafka pois esta é efetivamente constante dependendo apenas do tamanho do registro.
+* Cada registro de log nas partições tem:
+  * ID sequencial chamado **Offset** que é unico dentro de uma partição;
+  * Timestamp com o momento que foi criado (seja no broker ou no producer - depende da configuração do broker);
+  * Body que é a mensagem;
+  * Pode conter uma Key que permite salvar informações adicionais e, ainda, pode determinar em qual partição será salva (routing key);
+* O Kafka persiste todos os registros (consumidos ou não) de um tópico durante um período de tempo configurado (**retention policy**, tem valor padrão de 168h ou 7d que é configurável por tópico). Após esse tempo o registro é removido para liberar espaço. Isso não afeta a performance do Kafka pois esta é efetivamente constante dependendo apenas do tamanho do registro.
 * O consumer que é responsável por controlar quais registros já leu. Isso é feito usando o *offset* do registro. Assim, normalmente, um consumer avança seu offset conforme processa os registros. Mas também é possível voltar e avançar a vontade ao alterar esse offset. Isso torna o consumo de registros bem leve, sem muito impacto no cluster Kafka.
 
 ### Partições
@@ -77,14 +81,27 @@ Aplicações que consomem as mensagens.
 
 ## Producers
 - Todos os nodes do cluster fornecem metadata para informar qual node está vivo e qual node contém os liders das partições de um tópico. Com isso após a leitura desse metadata, o producer pode enviar mensagens diretamente para o lider.
-- O producer é responsável por escolher qual registro será enviado para um determinada partição. Essa escolha pode ser feita via round-robin para balancer o load ou pode ser selecionada  de forma específica.
-- Também é possível enviar mensagens em modo batch, pode ser configurado para enviar quando atingir N mensagens e/ou após um determinado tempo.
+- O producer é responsável por escolher qual registro será enviado para um determinada partição. Essa escolha pode ser feita via round-robin para balancer o load ou pode ser selecionada  de forma específica (com um routing key ou definindo diretamente a particão).
+- O producer é configurado através de properties que é passado no seu construtor. Algumas propriedades:
+  - `max.in.flight.request.per.connection`: define a quantidade máxima de requisições em uma conexão;
+- Também é possível enviar mensagens em modo batch, pode ser configurado para enviar quando atingir N mensagens (configurado através do `batch.size` e `batch.memory`) e/ou após um determinado tempo (configurado através do `linger.ms`).
+- Garantias de entrega é configurado através do `acks`:
+  - 0: Fire and forget
+  - 1: Leader acknowledged
+  - 2: Replication quorum acknowledged (todos os brokers do ISR)
+- Quando ocorre um erro o produtor pode tentar entregar novamente os registros. Esse retry pode ser configurado com:
+  - `retries`: quandidade de tentantivas
+  - `retry.backoff.ms`: tempo entre as tentativas
+
 
 
 ## Consumers
 - Cada consumidor se tem um label que define seu consumer group, ou seja, os consumidores sempre são organizados em conjuntos de um ou mais consumidores.
 - Cada registro publicado em uma partição do tópico é enviado para um consumidor de cada grupo, ou seja, somente um consumidor do grupo irá ler esse registro.
 - A maneira de consumo implementada no protocolo do Kafka faz com as partições do tópico sejam divididas entre os consumers de mandeira que cada consumer seja responsável pela mesma quantidade de partições para que não sejam sobrecarregados. Se um novo consumer é adicionado então ele toma uma ou mais partições de outro consumer do mesmo grupo. Se um consumer é removido então seus tópicos serão distribuídos entre os outros consumers do mesmo grupo [Exemplo](https://kafka.apache.org/11/images/consumer-groups.png).
+- Quando o consumer faz um subscribe em um ou mais tópicos, caso seja adicionado uma nova partição algum desses tópicos esse consumir fará a verificação automaticamente e então passará a ler dessa nova partição também.
+- Quando o consumer faz um assign em uma ou mais partições, caso seja adicionado uma nova partição em algum algum desses tópicos ele não fará nada visto que está interessado apenas nas partições definidas inicialmente.
+
 
 
 ## Principais API
@@ -92,6 +109,13 @@ Aplicações que consomem as mensagens.
 - Consumer API: permite um app inscrever-se em um ou mais tópicos para processar suas mensagens.
 - Stream API: permite um app atuar como transformador entre tópicos, consumindo registros de um ou mais tópicos (input) e publicar seus resultados em um ou mais tópicos (output).
 - Connector API: permite construir e rodar reusáveis producers e consumers que conectam os tópicos do Kafka em app ou bancos de dados existentes.
+
+
+
+## Propriedades
+* `log.message.timestamp.type`: Define qual o timestamp será usado no registro de log.
+	* CreateTime: o timestamp setado pelo produtor que será utilizado
+	* LogAppendTime: o timestamp será setado pelo broker no momento que o registro é appendado no log.
 
 
 
@@ -106,8 +130,15 @@ Aplicações que consomem as mensagens.
 * Tópicos:
   * Listar: `./bin/kafka-topics.sh --list --zookeeper localhost:2181`
   * Criar: `./bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic my-topic`
+  * Alterar: `./bin/kafka-topics.sh --alter --zookeeper localhost:2181 --replication-factor 2 --partitions 2 --topic my-topic`
   * Detalhar: `./bin/kafka-topics.sh --describe --zookeeper localhost:2181 --topic my-topic`
   * Pasta física na máquina (caso não tenha mudado o caminho padrão): `/tmp/kafka-logs/my-topic-0`
+* Testes:
+  * Stress: `./bin/kafka-producer-perf-test.sh --topic my-topic --num-records 1000 --record-size 100 --throughput 100 --producer-props bootstrap.servers=localhost:9092 key.serializer=... value.serializer=...`
+    * num-records: qtde de registros
+    * record-size: tamanho de cada registro em bytes
+    * throughput: performance desejada (mensagens/segundo)
+    * producer-props: propriedades do produtor (iguais do client java)
 
 ### Produtor
 Kafka possui um command-line producer, cada linha é uma mensagem que será enviada.
@@ -115,4 +146,4 @@ Kafka possui um command-line producer, cada linha é uma mensagem que será envi
 
 ### Consumidor
 Kafka também possui um command-line consumer que irá printar cada mensagem lida.
-* Run: `./kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic test --from-beginning`
+* Run: `./bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic test --from-beginning`
