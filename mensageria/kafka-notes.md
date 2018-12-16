@@ -62,6 +62,7 @@ Aplicações que consomem as mensagens.
   * Pode conter uma Key que permite salvar informações adicionais e, ainda, pode determinar em qual partição será salva (routing key);
 * O Kafka persiste todos os registros (consumidos ou não) de um tópico durante um período de tempo configurado (**retention policy**, tem valor padrão de 168h ou 7d que é configurável por tópico). Após esse tempo o registro é removido para liberar espaço. Isso não afeta a performance do Kafka pois esta é efetivamente constante dependendo apenas do tamanho do registro.
 * O consumer que é responsável por controlar quais registros já leu. Isso é feito usando o *offset* do registro. Assim, normalmente, um consumer avança seu offset conforme processa os registros. Mas também é possível voltar e avançar a vontade ao alterar esse offset. Isso torna o consumo de registros bem leve, sem muito impacto no cluster Kafka.
+* Quando um offset do consumer é commitado o kafka salva esse estado num tópico interno chamado `__consumer_offsets`.
 
 ### Partições
 * É a representação fisica do tópico. Na pasta do server terá uma pasta `<NOME_DO_TOPICO>-<NUMERO_DA_PARTICAO>`.  
@@ -98,9 +99,16 @@ Aplicações que consomem as mensagens.
 ## Consumers
 - Cada consumidor se tem um label que define seu consumer group, ou seja, os consumidores sempre são organizados em conjuntos de um ou mais consumidores.
 - Cada registro publicado em uma partição do tópico é enviado para um consumidor de cada grupo, ou seja, somente um consumidor do grupo irá ler esse registro.
-- A maneira de consumo implementada no protocolo do Kafka faz com as partições do tópico sejam divididas entre os consumers de mandeira que cada consumer seja responsável pela mesma quantidade de partições para que não sejam sobrecarregados. Se um novo consumer é adicionado então ele toma uma ou mais partições de outro consumer do mesmo grupo. Se um consumer é removido então seus tópicos serão distribuídos entre os outros consumers do mesmo grupo [Exemplo](https://kafka.apache.org/11/images/consumer-groups.png).
+- A maneira de consumo implementada no protocolo do Kafka faz com as partições do tópico sejam divididas entre os consumers de mandeira que cada consumer seja responsável pela mesma quantidade de partições para que não sejam sobrecarregados.
+  - Se um novo consumer é adicionado então ele toma uma ou mais partições de outro consumer do mesmo grupo.
+  - Se um consumer é removido então seus tópicos serão distribuídos entre os outros consumers do mesmo grupo [Exemplo](https://kafka.apache.org/11/images/consumer-groups.png).
+  - Caso este esteja num grupo de consumers, caso a partição que ele retome já tenha sido iniciada por outro consumidor anteriomente então ele continuará a processar a partir do último offset commitado (caso a propriedade `auto.offset.reset` seja lastest). 
 - Quando o consumer faz um subscribe em um ou mais tópicos, caso seja adicionado uma nova partição algum desses tópicos esse consumir fará a verificação automaticamente e então passará a ler dessa nova partição também.
 - Quando o consumer faz um assign em uma ou mais partições, caso seja adicionado uma nova partição em algum algum desses tópicos ele não fará nada visto que está interessado apenas nas partições definidas inicialmente.
+- `poll()`
+  - Recebe o timeout na chamada
+  - É single-threaded
+  - Retorna uma coleção de records
 
 
 
@@ -112,10 +120,42 @@ Aplicações que consomem as mensagens.
 
 
 
-## Propriedades
+## Propriedades do Broker
 * `log.message.timestamp.type`: Define qual o timestamp será usado no registro de log.
-	* CreateTime: o timestamp setado pelo produtor que será utilizado
-	* LogAppendTime: o timestamp será setado pelo broker no momento que o registro é appendado no log.
+  * CreateTime: o timestamp setado pelo produtor que será utilizado
+  * LogAppendTime: o timestamp será setado pelo broker no momento que o registro é appendado no log.
+
+
+
+### Propriedades do Client Producer
+
+* `max.in.flight.request.per.connection`: define a quantidade máxima de requisições em uma conexão.
+* `retry.backoff.ms`: intervalo entre as tentativas de salvar o registro.
+* `batch.size`: tamanho máximo do batch antes que seja commitado.
+* `batch.memory`: tamanho máximo do batch em bytes antes que seja commitado.
+* `linger.ms`: tempo máximo até que haja um commit batch (estando cheio ou não).
+* `acks`: configura o nível de acknowledge.
+
+### Propriedades do Client Consumer
+
+* `group.id`: define um ID para o grupo caso queira que o consumer faça parte de um grupo de consumidores específico.
+* `heartbeat.interval.ms`: Intervalo dos sinais de health do consumer, default é 3000.
+* `session.timeout.ms`: timeout dos sinais de health, default é 30000.
+* `enable.auto.commit`: Define se o autocommit dos registros processados mas não commitados (registros entre a posicão atual do offset e a última posição commitada do offset):
+  * true: default
+  * false: o consumidor é responsável por efetuar o commit usando um dos métodos a seguir:
+    * `commitSync`: o commit é efetuado de forma síncrona, o que nos dá grande nível de consistência, o consumidor é bloqueado até que receba uma resposta do broker, se ocorrer erro é feito novas tentativas.
+      * `commitAsync`: o commit é feito de forma assíncrona, enquanto o consumidor pode estar processando outros registros, o que diminui o nível de consistência. Porém é possível passar um callback que será chamado quando for completado (é recomendado sempre usar esta opção). Não tem retry automático. 
+* `auto.commit.interval`: Interval para commitar os registros que foram processados. Valor padrão é 5s.
+* `auto.offset.reset`: Define o comportamento quando um consumer voltar a consumir uma nova partição.
+  * lastest: inicia do último offset commitado, é o comportamento padrão.
+  * earliest: 
+  * none:
+* `retry.backoff.ms`: intervalo entre as tentativas de commitar o offset dos registros processados.
+* `fetch.min.bytes`: define a qtde mínima de bytes para que haja um processamento, para não desperdiçar ciclos.
+* `max.fetch.wait.ms`: tempo máximo de espera do fetch.
+* `max.partition.fetch.bytes`: tamanho máximo de bytes que pode ser carregado por partição durante um ciclo.
+* `max.poll.records`: tamanho máximo de registros para processar.
 
 
 
@@ -147,3 +187,8 @@ Kafka possui um command-line producer, cada linha é uma mensagem que será envi
 ### Consumidor
 Kafka também possui um command-line consumer que irá printar cada mensagem lida.
 * Run: `./bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic test --from-beginning`
+
+
+## Resources
+* Kafka Registry: conjunto de serializadores.
+* Kafka Connector: conjunto de libs para conectar em outros sistemas e bancos.
