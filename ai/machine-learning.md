@@ -1,6 +1,6 @@
 # Machine Learning
 
-Um software é dito que aprendeu a partir de uma experiência E em alguma tarefa T com uma medida de performance P, se sua performance na tarefa T, medida por P, aumentou sua experiêncie E (Tom Mitchel).
+> Um software é dito que aprendeu a partir de uma experiência E em alguma tarefa T com uma medida de performance P, se sua performance na tarefa T, medida por P, aumentou sua experiêncie E (Tom Mitchel).
 
 * Para definir se um algoritmo é bom ou ruim precisamos de uma base para comparação (seja um algoritmo burro que sempre dá a mesma resposta para todas as entradas ou outra forma qualquer);
 * Avaliar se aquela taxa de acertos do algoritmo significa algo para o negócio, se vale a pena a taxa de erros.
