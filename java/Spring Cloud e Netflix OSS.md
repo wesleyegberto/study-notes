@@ -6,7 +6,6 @@
 
 
 ## Zuul
-
 É um  API Gateway/Proxy.
 Características:
 - Permite configurar autenticação;
@@ -51,31 +50,69 @@ Fluxo:
 - [Presentation](https://www.youtube.com/watch?v=2oXqbLhMS_A&feature=youtu.be)
 
 
-## Eureka
-- Service Registry-Discovery
-- Visualização das instâncias
-- Load balancing e failover
-- Add/Rem de nodes on the fly
-- Visualização Health Check
 
-#### Projeto
-- Deps: eureka-server
+## Eureka
+Características:
+- Service Registry-Discovery;
+- Visualização das instâncias;
+- Load balancing e failover;
+- Add/Rem de nodes on the fly;
+- Visualização Health Check;
+- Recomendado usar um DNS na frente do Eureka Server;
+- Recomendado um Eureka cluster em cada zona.
+
+Configurações:
+- Intervalo de atualização de cache;
+- Timeouts;
+- Limite de conexões;
+- Adicionar metadados;
+- Definir limite, timeout e retries da replicação.
+
+#### Eureka Client
+- Se registra no server;
+- Carrega os registros do server no startup, depois é carregado apenas os deltas (configurável);
+- Cache os registros encontrados;
+- Pode configurar para usar o registry na zona mais próxima;
+- Envia heartbeats a casa 30s (configurável);
+- Pode levar alguns heartbeats para disponibilizar o service (garantia que está rodando).
+
+#### Projeto Server
+- Deps: `spring-cloud-starter-netflix-eureka-server`
 - Código:
-  - @EnableEurekaServer (habilitar o Eureka Server)
-  - Usar @EnableEurekaClient para registrar os clientes (setar key eureka.server.host no application.properties)
-- application.properties
-  - server.port=8761 # servidor Eureka
-  - eureka.client.register-with-eureka=false # não registra nele mesmo
+  - `@EnableEurekaServer`
+    - Habilita o servidor Eureka no projeto;
+- Properties:
+  - `server.port=8761` # servidor Eureka
+  - `eureka.client.register-with-eureka=false` # não registra nele mesmo (caso seja standalone - sem cluster de registries)
+  - `eureka.client.fetch-registry=false` # não baixa os registros de services (caso seja standalone)
+  - `eureka.environment=production`
+  - `eureka.datacenter=house`
+
+#### Projeto Client
+- Deps: `spring-cloud-starter-netflix-eureka-client`
+- Código:
+  - `@EnableEurekaClient`
+    - Registra a aplicação como um cliente;
+    - é preciso setar a property `eureka.server.host` no application.properties.
+- Properties:
+  - `eureka.server.host=127.0.0.1` # server Eureka
+  - `eureka.server.port=8761` # portar do server
+  - `eureka.client.service-url.defaul-zone=http://localhost:8651/eureka/` # eureka servers
+  - `eureka.instance.instance-id=${spring.application.name}:${random.int}` # mudar o nome da instância
+  - `eureka.client.healthcheck.enabled=true` # hablita custom health check (interface HealthIndicator)
 
 #### Links
 - [Netflix Blog](https://medium.com/netflix-techblog/netflix-shares-cloud-load-balancing-and-failover-tool-eureka-c10647ef95e5)
 - [Heroku Post](https://blog.heroku.com/managing_your_microservices_on_heroku_with_netflix_s_eureka)
+
+
 
 ## Ribbon
 Dynamic routing e Load Balancer pode ser usado para fazer lookup dos serviços em runtime.
 Utiliza inforamções disponíveis  no Euraka para localizar instâncias apropriadas dos serviços.
 Se mais de uma instância for encontrada, Ribbon aplicará load balancing para espalhar os requests através das instâncias disponíveis.
 Não roda como um serviço separado mas sim como um componente embutido em cada consumidor de serviço.
+
 
 
 ## Feign
