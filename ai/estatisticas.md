@@ -4,7 +4,7 @@
 
 ### Definições
 
-* Tratamento: em um experimento, é a maneira que o pesquisador manipula/interage com o grupo em estudo (indivíduos). Dependendo do experimento e a forma do tratamento podemos ter resultados diferentes.
+* Tratamento: em um experimento, é a maneira que o pesquisador manipula/interage com o grupo em estudo (indivíduos). Dependendo do experimento e da forma de tratamento podemos ter resultados diferentes.
 
 * Construto: é qualquer coisa que é difícil para medir pois ela pode ser medida de várias maneiras diferentes (felicidade, fome, gasolina [galão ou litros]).
 * Definição operacional do construto: é a unidade de medida que está sendo usada para o construto, pois sem ela não seria possível medir.
@@ -25,6 +25,10 @@
 * Grupo de controle: é o grupo do estudo que não recebe tratamento, este grupo é usado como base de comparação com os grupos de tratamento.
 
 * Placebo: algo que é dado ao grupo de controle para eles pensarem que estão recebendo tratamento.
+
+* Correlação:
+  * Positiva: Uma correlação positiva indica que as duas variáveis movem juntas, e a relação é forte quanto mais a correlação se aproxima de um.
+  * Negativa: Uma correlação negativa indica que as duas variáveis movem-se em direções opostas, e que a relação também fica mais forte quanto mais próxima de menos 1 a correlção ficar.
 
 
 
@@ -123,14 +127,22 @@ A partir da variância média, basta extrairmos a raiz quadrada.
 
 #### Histograma
 * Frequência que as coisas acontecem numa distribuição;
-* Possui uma curva normal que mostra a distribuição esperada para determinada amostra de dados.
+* Possui uma curva normal que mostra a distribuição esperada para uma determinada amostra de dados.
 
 * Função do R: `hist()`
 
 
+
 # Linguagem R
+Atribuir valor para uma variável:
+* `my_var <- 42`
+* `my_list <- c(1, 2, 3)`
 
 ### Funções
+* `c(1, 2, 3)`
+  * cria uma lista com os elementos 1, 2 e 3.
+* `hist(my_list)`
+  * plota o histograma da lista recebida
 * `png(file="C:\filename", width=x, height=y)`:
   * inicia a escrita de imagens em buffer, o proximo gráfico gerado será salvo neste arquivo e não será exibido;
   * para efetuar a escrita do buffer usamos: `dev.off()`.
