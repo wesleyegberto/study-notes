@@ -100,7 +100,7 @@ Terminologia com base no livro Software Architecture in Practice por Len Bass, P
 
 
 
-## Monolíto (Monolithic)
+## Monolítico (Monolithic)
 Todo o código é publicado e roda como um processo único em um único node.
 Pode ter módulos e componentes separados porém após a publicação eles rodam juntos em um único processo.
 Cenários onde não é ideal usar monolíto:

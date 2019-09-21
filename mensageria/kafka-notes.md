@@ -93,6 +93,8 @@ Aplicações que consomem as mensagens.
 - Quando ocorre um erro o produtor pode tentar entregar novamente os registros. Esse retry pode ser configurado com:
   - `retries`: quandidade de tentantivas
   - `retry.backoff.ms`: tempo entre as tentativas
+- Quando `retries` > 0 pode ocorrer que a mensagem esteja fora de ordem (pois uma mensagem em retry pode ser escrita depois que outra foi escrita de primeira - sem erro), para garantir ordem mesmo com retry é preciso configurar o `max.in.flight.request.per.connection` = 1 para que exista apenas uma mensagem em retry. Porém isso poderá diminuir o throughput do producer.
+- É possível usar a key da mensagem para calcular a partição em que será escrita, mantendo assim um grupo de mensagem em uma mesma partição. É utilizado a quantidade de partições para calcular o hash, logo, quando alterado a quantidade de partições de um tópico é possível que passe a escrever em outro tópico. Caso o agrupamento das mensagens seja importante é necessário já criar o tópico com partições suficientes.
 
 
 
