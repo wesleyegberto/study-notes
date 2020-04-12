@@ -1,1 +1,8 @@
 .DS_Store
+.vscode/
+*.class
+*.map.js
+*.jar
+node_modules/
+build/
+target/
