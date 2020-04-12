@@ -382,3 +382,8 @@ pipe ele utilizará o valor cacheado.
   * define route guards necssários para a aplicação de acordo com o usuário ou role;
   * sempre replicar a regra de segurança no servidor.
 
+### Bundle Size
+
+É importante monitor o bundle size conforme nossa aplicação é desenvolvida.
+Podemos usar a ferramente *source-map-explorer* para visualizar quais libs e módulos estão pesando mais.
+Podemos também configurar no nosso CI para nos notificar quando o bundle size aumentar drasticamente.
