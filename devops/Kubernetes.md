@@ -10,6 +10,8 @@
 * Desire state: estado descrito nos PodSpecs.
 * Running state: estado atual em execução.
 
+
+
 ## Componentes do K8s
 
 ### Componentes do Master
@@ -34,15 +36,44 @@ São pods e services que implementam features do cluster. Os objetos addon são 
 * Container Resource Monitoring: registra métricas genéricas sobre os containers na base central e provê uma UI para consulta.
 * Cluster-level Logging: mecanismo responsávle por salvar os logs dos containers numa base cnetral de logs.
 
-
-
-
-
 ### Pods
 Permite o agrupamento lógico de containers iguais ou diferentes que podem compartilhar recursos de volumes, networking e infos.
+
+#### Prioridade
+O kubelet trata as prioridade dos pods conforme o QoS (Quality of Service - request e limit) que é definido no resource para o pod. Os pods de menor prioridade são evicted primeiro.
+
+* Lowest  (Best effort): quando não são configurados o request e limit de resource do pod;
+* Medium (Burstable): quando são configurados o request e limit de resource do pod com valores diferentes;
+* High (guaranteed): quando são configurados o request e limite de resource do pod com valores iguais;
+
+A partir da versão 1.11 do Kubernetes é possível setar uma prioridade nos pods.
+```yaml
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+ name: high-priority
+value: 1000
+---
+apiVersion: v1
+kind: Pod
+metadata:
+ name: mypod
+spec:
+ containers:
+ - image: redis
+   name: mycontainer
+ priorityClassName: high-priority`
+```
 
 ### Services
 Permite o agrupamento de Pods com uma politica de acesso; tambem serve como load balancer entre pods selecionados via label.
 
 ### Deployments
 Responsável por rodar e atualizar as configurações e instâncias dos Pods.
+
+
+
+
+## Links
+* https://www.magalix.com/blog/kubernetes-patterns-capacity-planning
+* https://www.magalix.com/blog/kubernetes-patterns-declarative-deployments

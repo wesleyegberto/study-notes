@@ -1,6 +1,9 @@
 # RabbitMQ
 
 
+No RabbitMQ, produtores publicam uma ou mais mensagens com uma  _routing key_ nas exchanges onde decisões de roteamento acontecem, finalizando com a mensagem uma ou mais filas onde os consumidores se conectam podendo ler mensagens através dos mecânismos de _push_ ou _pull_.
+
+
 ## Operação
 
 ### Possíveis limitações:

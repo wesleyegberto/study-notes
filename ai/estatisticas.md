@@ -3,32 +3,29 @@
 ## Conceitos
 
 ### Definições
+* **Construto:** é qualquer coisa que é difícil para medir pois ela pode ser medida de várias maneiras diferentes (felicidade, fome, gasolina [galão ou litros]).
+* **Definição operacional do construto:** é a unidade de medida que está sendo usada para o construto, pois sem ela não seria possível medir.
 
-* Tratamento: em um experimento, é a maneira que o pesquisador manipula/interage com o grupo em estudo (indivíduos). Dependendo do experimento e da forma de tratamento podemos ter resultados diferentes.
+* **População ($\mu$):** Todos os indíviduos do grupo, toda a população.
+* **Amostra ($\bar{x}$):** Descreve a amostra estatística da população que estamos analisando.
+* **Erro Amostral:** Diferença entre a população inteira e a amostra: $\mu - \bar{x}$
+* **Lurking Variables:** Variável não controlada que pode estragar nossos dados.
 
-* Construto: é qualquer coisa que é difícil para medir pois ela pode ser medida de várias maneiras diferentes (felicidade, fome, gasolina [galão ou litros]).
-* Definição operacional do construto: é a unidade de medida que está sendo usada para o construto, pois sem ela não seria possível medir.
+* **Parâmetro:** Define uma característica da população;
+* **Estatística:** Define uma característica da amostra.
 
-* População: todos os indíviduos do grupo;
-* Amostra: parte dos indíviduos do grupo.
+* **Mostrar relações:** faça um estudo observacional ou pesquisa de campo (survey);
+* **Mostras causalidade:** faça um experimento controlado.
 
-* Parâmetro: Define uma característica da população;
-* Estatística: Define uma característica da amostra.
+* **Estudo observacional:** quando um pesquisador observa um grupo de indivíduos e não introduz um tratamento.
+* **Tratamento:** em um experimento, é a maneira que o pesquisador manipula/interage com o grupo em estudo (indivíduos). Dependendo do experimento e da forma de tratamento podemos ter resultados diferentes.
+* **Grupo de tratamento:** é o grupo do estudo que recebe níveis variados das variáveis independentes, esses grupos são usados para medir o efeito do tratamento.
+* **Grupo de controle:** é o grupo do estudo que não recebe tratamento, este grupo é usado como base de comparação com os grupos de tratamento.
+* **Placebo:** algo que é dado ao grupo de controle para eles pensarem que estão recebendo tratamento.
 
-* Mostrar relações: faça um estudo observacional ou pesquisa de campo (survey);
-* Mostras causalidade: faça um experimento controlado.
-
-* Estudo observacional: quando um pesquisador observa um grupo de indivíduos e não introduz um tratamento.
-
-* Grupo de tratamento: é o grupo do estudo que recebe níveis variados das variáveis independentes, esses grupos são usados para medir o efeito do tratamento.
-
-* Grupo de controle: é o grupo do estudo que não recebe tratamento, este grupo é usado como base de comparação com os grupos de tratamento.
-
-* Placebo: algo que é dado ao grupo de controle para eles pensarem que estão recebendo tratamento.
-
-* Correlação:
-  * Positiva: Uma correlação positiva indica que as duas variáveis movem juntas, e a relação é forte quanto mais a correlação se aproxima de um.
-  * Negativa: Uma correlação negativa indica que as duas variáveis movem-se em direções opostas, e que a relação também fica mais forte quanto mais próxima de menos 1 a correlção ficar.
+* **Correlação:**
+  * **Positiva:** Uma correlação positiva indica que as duas variáveis movem juntas, e a relação é forte quanto mais a correlação se aproxima de um.
+  * **Negativa:** Uma correlação negativa indica que as duas variáveis movem-se em direções opostas, e que a relação também fica mais forte quanto mais próxima de menos 1 a correlção ficar.
 
 
 

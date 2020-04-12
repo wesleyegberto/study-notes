@@ -1,6 +1,5 @@
 # Amazon SQS
 
-
 ### Características
 * Redundância das mensagens por padrão
 * Delay da entrega da mensagem a nível de fila e mensagem (0s à 15min)
@@ -11,6 +10,7 @@
 * Suporta DLQ
 
 ### Tipos
+
 #### Standard
 * Throughput ilimitado
 * No mínimo uma entrega (pode haver entragas duplicadas)
