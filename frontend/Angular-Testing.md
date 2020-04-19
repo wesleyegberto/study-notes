@@ -280,16 +280,30 @@ describe('HeroesComponent', () => {
 
 ```
 
-### Integration Tests - Shallow
+### Integration Tests
 
-Nos testes de integração shallow podemos usar a classe `TestBed` para criar o module de teste.
+Nos testes de integração temos interesse do comportamento da unidade interagindo com suas depedências, seja um service ou
+outro componente utilizado no template, e, ainda, sendo mockado ou não.
 
-O `TestBed` disponibiliza um método para criar o componente que estamos querendo testar:
+Podemos mockar os services que ele depende e os componentes que ele utiliza no template, dependendo do nível do teste.
+
+Nos testes de integração podemos usar a classe `TestBed` para criar o module de teste.
+
+O `TestBed` disponibiliza um método para criar os componentes que estamos querendo testar:
 
 `let fixture: ComponentFixture<MyComponent> = TestBed.createComponent(MyComponent)`
 
 A partir do objeto retornado podemos acessa a instância do componente assim como o DOM, diretivas, models, disparar eventos
 do Angular, etc.
+
+Com o fixture podemos chamar o seu método `detectChanges()` que irá disparar alguns life cycles do Angular para
+iniciar o data binding, executar os hooks do componentes, etc.
+
+#### Shallow Tests
+
+Nos testes de integração shallow normalmente queremos testar apenas um componente isolado, para isso
+criamos mock para todos os services que ele depende e os componentes que ele utiliza no template.
+Aqui podemos testar apenas a classe componente ou o template em si.
 
 Exemplo de um teste de componente que não recebe dependências ou utilize outros componentes.
 Arquivo _hero.component.spec.ts_:
@@ -325,7 +339,7 @@ describe('HeroComponent (shallow tests)', () => {
 
   it('should render the hero name inside an anchor tag', () => {
     fixture.componentInstance.hero = createHero();
-    // run change detection to update the models
+    // trigger initial data binding
     fixture.detectChanges();
 
     // `nativeElement` points to the JS DOM, its depends on runtime
@@ -407,4 +421,169 @@ describe('HeroComponent (shallow tests)', () => {
 });
 ```
 
-### Integration Tests - Deep
+#### Deep Tests
+
+Nos testes de integração deep fazemos o teste do componente interagindo com todos os outros componentes que
+ele utiliza.
+Para fazer isso podemos mockar todas services que ele depende e adicionar todos os componentes que queremos
+testar no `TestBed`.
+
+Os testes de componentes podem ser divididos em _shallow_ e _deep_ tests.
+
+Arquivo _heroes.component.deep.spec.ts_:
+
+```ts
+import { By } from '@angular/platform-browser';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { of } from 'rxjs/internal/observable/of';
+
+import { HeroesComponent } from './heroes.component';
+import { HeroComponent } from '../hero/hero.component';
+import { HeroService } from '../hero.service';
+
+describe('HeroComponent (shallow tests)', () => {
+  let fixture: ComponentFixture<HeroesComponent>;
+  let mockHeroService;
+
+  let HEROES: Array<any> = [];
+
+  beforeEach(() => {
+    HEROES = [
+      { id: 1337, name: 'Duke', strength: 10 },
+      { id: 42, name: 'Tom', strength: 12 }
+    ];
+
+    mockHeroService = jasmine.createSpyObj(['getHeroes', 'addHero', 'deleteHero']);
+
+    TestBed.configureTestingModule({
+      declarations: [
+        HeroesComponent,
+        HeroComponent
+      ],
+      providers: [
+        // here we use provide to inject our mock when a component needs a HeroService
+        { provide: HeroService, useValue: mockHeroService }
+      ],
+      schemas: [NO_ERRORS_SCHEMA]
+    });
+    fixture = TestBed.createComponent(HeroesComponent);
+  });
+
+  it('should render each hero as a HeroComponent', () => {
+    mockHeroService.getHeroes.and.returnValue(of(HEROES));
+
+    // trigger hook ngOnInit
+    fixture.detectChanges();
+
+    const heroComponentsDEs = fixture.debugElement.queryAll(By.directive(HeroComponent));
+    expect(heroComponentsDEs.length).toBe(2);
+
+    for (let i = 0; i < heroComponentsDEs.length; i++) {
+      expect(heroComponentsDEs[i].componentInstance.hero).toEqual(HEROES[i]);
+    }
+  });
+
+  // example of how to test a button click
+  it('should call heroService.delete when the HeroComponent\'s delete button is clicked', () => {
+    mockHeroService.getHeroes.and.returnValue(of(HEROES));
+    spyOn(fixture.componentInstance, 'delete');
+
+    fixture.detectChanges();
+
+    const heroComponents = fixture.debugElement.queryAll(By.directive(HeroComponent));
+
+    // finds the button and trigger its event passing the $event objet used in the callback
+    heroComponents[0].query(By.css('button'))
+      .triggerEventHandler('click', { stopPropagation: () => {}});
+
+    // triggering the events from the child
+    (<HeroComponent>heroComponents[0].componentInstance).delete.emit(undefined);
+
+    // triggering the event using only its name (won't be affected by refactoring and
+    // we need to change this when the template is changed)
+    heroComponents[0].triggerEventHandler('delete', null);
+
+    expect(fixture.componentInstance.delete).toHaveBeenCalledWith(HEROES[0]);
+  });
+
+  // example of how to test a form input
+  it('should add a new hero when the add button is clicked', () => {
+    mockHeroService.getHeroes.and.returnValue(of(HEROES));
+    fixture.detectChanges();
+    const name = 'Uzumaki Naruto';
+    mockHeroService.addHero.and.returnValue(of({ id: 203, name, strength: 100 }));
+
+    const inputElement = fixture.debugElement.query(By.css('input')).nativeElement;
+    const addButton = fixture.debugElement.queryAll(By.css('button'))[0];
+
+    inputElement.value = name;
+    addButton.triggerEventHandler('click', null);
+    // we need to call detection to trigger the updates
+    fixture.detectChanges();
+
+    const heroesLiDEs = fixture.debugElement.queryAll(By.css('li'));
+    expect(heroesLiDEs.length).toBe(3);
+    expect(heroesLiDEs[2].nativeElement.textContent).toContain(name);
+  });
+});
+```
+
+#### Service
+
+Para testar services que fazem requisições para API podemos mockar o `HttpClient` manualmente ou utilizar um module
+disponibilizo pelo Angular para testes: [HttpClientTestingModule](https://angular.io/guide/http#testing-http-requests).
+
+```ts
+import { TestBed, inject } from '@angular/core/testing';
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+
+import { HeroService } from './hero.service';
+import { MessageService } from './message.service';
+
+describe('HeroService', () => {
+  let httpTestingController: HttpTestingController;
+  let mockMessageService;
+
+  let heroSvc: HeroService;
+
+  beforeEach(() => {
+    mockMessageService = jasmine.createSpyObj(['add']);
+
+    TestBed.configureTestingModule({
+      imports: [ HttpClientTestingModule ],
+      providers: [
+        HeroService,
+        { provide: MessageService, useValue: mockMessageService }
+      ]
+    });
+
+    // gets the controller from container
+    httpTestingController = TestBed.get(HttpTestingController);
+    heroSvc = TestBed.get(HeroService);
+  });
+
+  // example how to use `inject()` method
+  it('should be able to create a service', inject([HeroService], (heroService: HeroService) => {
+    expect(heroService).toBeDefined();
+  }));
+
+  describe('getHero', () => {
+    it('should call get with the correct URL', () => {
+      heroSvc.getHero(4).subscribe();
+
+      // it expects one request to the given URL
+      const req = httpTestingController.expectOne('api/heroes/4');
+      // returns the value so the observable is returned
+      req.flush({ id: 42, name: 'Adam', strength: 42 });
+      // asserts that only the given URL was called (other calls will fail)
+      httpTestingController.verify();
+    });
+  });
+});
+```
+
+## Links
+
+* [Docs do Angular Tests](https://angular.io/guide/testing)
+
