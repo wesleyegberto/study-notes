@@ -172,6 +172,7 @@ coverageIstanbulReporter: {
 
 Vale notar que somente é contabilizado os códigos que são carregados durante os testes, se uma classe nunca for adicionada em nenhum módulo
 de teste ela não será contabilizada como não coberta porque o Angular não saberá da sua existência.
+Para contornar esse problema podemos utilizar a lib [karma-sabarivka-reporter](https://github.com/kopach/karma-sabarivka-reporter).
 
 ### Unit Tests
 
