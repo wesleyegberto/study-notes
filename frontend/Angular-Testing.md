@@ -2,13 +2,121 @@
 
 ## Conceito
 
+Angular nos fornece uma várias APIs para efetuarmos testes dos nossos componentes de forma fácil e rápida.
+Quando criamos um projeto utilizando o Angular CLI executando o comando <code>ng new</code> já é configurado tudo que é preciso para testar um projeto Angular.
+
+
+## Ferramentas
+
+As ferramentas de testes utilizadas pelo Angular por padrão são:
+
+* [Karma](https://karma-runner.github.io/): test runner no browser;
+* [Jasmine](https://jasmine.github.io/): framework BDD para testes unitários e integrados, também fornece suporte para mocks.
+
+Também é possível utilizar outras ferramentas como: Jest, Mocha/Chai, Sion, TestDouble, Wallaby, Cypress. Mas é necessário configuração manual.
+
+### Karma
+
+Karma é um framework para rodar testes JavaScript que nos permite ser bastante produtivos ao prover um ambiente totalmente
+configurado (e que pode ser customizado) e um rápido feedback dos testes.
+
+### Jasmine
+
+Jasmine é um framework BDD (behavior-driven development) para testes de código JavaScript. Ele não requer DOM para rodar e não possui nenhuma dependência.
+
+Devido ao BDD e sua API fluente, sua sintaxe se torna bem limpa e extramente fácil de ler.
+
+Nos fornece uma série de API para validar valores e objetos, efetuar testes unitários e integrados, criar mocks para nos ajudar a isolar nossos testes, etc.
+
+O framework nos fornece uma série de APIs:
+
+* matchers: funções para validar valores e objetos;
+* funções setup: funções para preparar os objetos que usaremos nos testes (ex.: objeto que tenha inicialização seja muito complexa);
+* funções teardown: funções para fazer a limpeza ou pós-processamento dos objetos utilizados nos testes (ex.: limpar recursos compartilhados ou complexos em um testes integrado – banco de dados in-memory);
+* mocks: objetos dummy que podem ser configurados conforme o teste demandar.
+
+A seguir temos um exemplo de estrutura de teste em Jasmine com os métodos estão comentados com a explicação de uso:
+
+Arquivo simple-test.spec.ts:
+
+```js
+/**
+ * A função `describe` define um conjunto de especificações que precisam
+ * ser testadas.
+ * No testes do Angular, geralmente, o cenário estará vinculado a uma
+ * estrutura do Angular: um componente, service, pipe, etc.
+ */
+describe('Meu Cenario', () => {
+    // system under test (unidade que será testada teste)
+    let sut: any = null;
+
+    /**
+     * Função para configurarmos algo que será compartilhado
+     * entre todos os testes.
+     */
+    beforeAll(() => {
+        console.log('Roda apenas uma vez antes de todos os testes');
+    });
+
+    /**
+     * Função para configurarmos os objetos que usaremos em cada teste.
+     * É importante sempre iniciarlizar aqui para que sempre seja
+     * resetado antes de cada teste, assim, evitando que um teste
+     * influencie outro.
+     */
+    beforeEach(() => {
+        console.log('Roda uma vez antes de cada teste');
+        sut = {};
+    });
+
+    /**
+     * Define uma especificação única que será testada, dentro de um cenário BDD
+     * podemos ter vários testes (funções `it`) ou até mesmo outros cenários (funções `describe`).
+     * BDD recomenta que os testes sempre iniciem com `deveria` (traduzido de `should`).
+     */
+    it('should be true if true', () => {
+        // Montagem do cenário
+        sut.a = false;
+        // Ação
+        sut.a = true;
+        // Asserção
+        expect(sut.a).toBe(true);
+    });
+
+    /**
+     * Função para limparmos algo depois de cada teste.
+     */
+    afterEach(() => {
+      console.log('Roda uma vez depois de cada teste');
+    });
+
+    /**
+     * Função para limparmos algo compartilhado entre todos os testes.
+     */
+    afterAll(() => {
+      console.log('Roda apenas uma vez depois de todos os testes');
+    });
+});
+```
+
+É importante ter o sufixo `.spec.ts` porque o runner fará uma pesquisa por ele.
+
+Um teste deveria ser uma história completa contido na função `it`.
+Não deveria ser preciso ficar olhando ao redor para entender o teste.
+
+Técnicas:
+
+* mova código menos interessante de setup para dentro da função `beforeEach`;
+* mantenha o setup crítico dentro da especificação em teste (função `it`);
+* a especificação em teste (função `it`) deveria conter as três partes do teste: arranjo da pré-condição; ação e a asserção.
+
 ### Tipos de Testes
 
 * Unit tests:
-  * Testa unidade de código (pode ser função, pipe, service, class, componente).
-  * Tipos de units tests no Angular:
+  * Testa uma unidade de código (pode ser função, pipe, service, classe, componente);
+  * Tipos de testes unitários no Angular:
     * Isolado: testamos uma única classe ou função onde instanciamos manualmente passando os argumentos necessários;
-    * Integrado: testamos uma unidade através da criação de um module do Angular (para por exemplo testar o template de um componente), pode ser divido em:
+    * Integrado: testamos uma unidade através da criação de um module do Angular (por exemplo, para testar o template de um componente), pode ser divido em:
       * Shallow: testamos apenas um componente (sem os filhos);
       * Deep: testamos o componente com os filhos.
 * Integration tests:
@@ -20,7 +128,7 @@
 ### Mocks
 
 Mocks nos ajudam a garantir que estamos testando uma unidade de forma isolada.
-Mock permite simular dependências que esta unidade precisa para funcionar de forma completa ou correta.
+Mock permite simular uma dependência que a unidade precisa para funcionar de forma completa.
 
 Tipos de mock:
 
@@ -32,52 +140,6 @@ garantir que o comportamento esperado da unidade está sendo executado;
 * True mocks: objeto que usamos para saber se foi utilizado de uma forma bem específica (se determinado método foi chamado,
 quais argumentos, quais não deveriam ser chamados, etc), são mais complexos de montar mas ajudam a garantir o comportamento
 esperado.
-
-## Ferramentas
-
-* Karma: test runner no browser;
-* Jasmine: test unitário e integrado permitindo mocks;
-* Outras ferramentas: Jest, Mocha/Chai, Sion, TestDouble, Wallaby, Cypress.
-
-
-### Jasmine
-
-Tem um estrutura de BDD que podemos seguir para montar nossos testes.
-Arquivo simple-test.spec.ts:
-
-```js
-describe('my unit', () => {
-    let sut; // system under test
-
-    beforeEach(() => {
-        sut = {};
-    });
-
-    it('should be true if true', () => {
-        // Montagem do cenário
-        sut.a = false;
-        // Ação
-        sut.a = true;
-        // Asserção
-        expect(sut.a).toBe(true);
-    });
-});
-```
-
-É importante ter o sufixo `.spec.ts` porque o runner fará uma pesquisa por ele.
-
-* `describe`: define um grupo de especificações que precisam ser testadas;
-* `it`: define uma especificação única que será testada;
-* `beforeEach`: função que roda antes de cada especificação.
-
-Um teste deveria ser uma história completa contido na função `it`. Não deveria ser preciso ficar olhando ao
-redor para entender o teste.
-
-Técnicas:
-
-* mova código menos interessante de setup para dentro do `beforeEach`;
-* mantenha setup crítico dentro do `it`;
-* `it` deveria conter as três partes do teste: arranjo da pré-condição; ação e a asserção.
 
 ## Angular Tests
 
