@@ -110,7 +110,7 @@ Técnicas:
 * mantenha o setup crítico dentro da especificação em teste (função `it`);
 * a especificação em teste (função `it`) deveria conter as três partes do teste: arranjo da pré-condição; ação e a asserção.
 
-### Tipos de Testes
+## Tipos de Testes
 
 * Unit tests:
   * Testa uma unidade de código (pode ser função, pipe, service, classe, componente);
@@ -148,6 +148,30 @@ componente ou simples classe.
 Testes isolados são bem diretos vistos que são apenas classes. Normalmente pipes, services e componentes serão
 similares.
 As vezes mock será necessário para ajudar a isolar a unidade.
+
+Para rodar os testes usamos o Angular CLI: `ng test`.
+
+Caso queiramos gerar um relatório com a cobertura de código: `ng test --no-watch --code-coverage`.
+Também podemos setar no `angular.json` para sempre gerar o relatório ao rodar os testes.
+
+Caso queiramos forçar o valor mínimo na cobertura de código (linhas, comandos, funções e ramos) podemos
+alterar a configuração do Karma (`karma.conf.js`):
+
+```json
+coverageIstanbulReporter: {
+  reports: ['html', 'lcovonly'],
+  fixWebpackSourcePaths: true,
+  thresholds: {
+    statements: 80,
+    lines: 80,
+    branches: 80,
+    functions: 80
+  }
+}
+```
+
+Vale notar que somente é contabilizado os códigos que são carregados durante os testes, se uma classe nunca for adicionada em nenhum módulo
+de teste ela não será contabilizada como não coberta porque o Angular não saberá da sua existência.
 
 ### Unit Tests
 
@@ -492,17 +516,38 @@ testar no `TestBed`.
 
 Os testes de componentes podem ser divididos em _shallow_ e _deep_ tests.
 
-Arquivo _heroes.component.deep.spec.ts_:
+Arquivo _heroes.component.deep.spec.ts_ que testa:
+
+* componente filho;
+* input de form;
+* click de botão;
+* router link.
 
 ```ts
 import { By } from '@angular/platform-browser';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { Directive, Input, HostListener } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of } from 'rxjs/internal/observable/of';
 
 import { HeroesComponent } from './heroes.component';
 import { HeroComponent } from '../hero/hero.component';
 import { HeroService } from '../hero.service';
+
+/**
+ * Directive to simulate a routerLink, when clicked it will
+ * save the path to be inspected later.
+ */
+@Directive({ selector: '[routerLink]' })
+class RouterLinkStubDirective {
+  @Input('routerLink') linkParams: string;
+
+  navigateTo: any = null;
+
+  @HostListener('click')
+  onClick() {
+    this.navigateTo = this.linkParams;
+  }
+}
 
 describe('HeroComponent (shallow tests)', () => {
   let fixture: ComponentFixture<HeroesComponent>;
@@ -521,17 +566,18 @@ describe('HeroComponent (shallow tests)', () => {
     TestBed.configureTestingModule({
       declarations: [
         HeroesComponent,
-        HeroComponent
+        HeroComponent,
+        RouterLinkStubDirective
       ],
       providers: [
         // here we use provide to inject our mock when a component needs a HeroService
         { provide: HeroService, useValue: mockHeroService }
-      ],
-      schemas: [NO_ERRORS_SCHEMA]
+      ]
     });
     fixture = TestBed.createComponent(HeroesComponent);
   });
 
+  // example of how to test a child component
   it('should render each hero as a HeroComponent', () => {
     mockHeroService.getHeroes.and.returnValue(of(HEROES));
 
@@ -588,8 +634,27 @@ describe('HeroComponent (shallow tests)', () => {
     expect(heroesLiDEs.length).toBe(3);
     expect(heroesLiDEs[2].nativeElement.textContent).toContain(name);
   });
+
+  // example of how to test a router link
+  it('should have the correct route for the first hero', () => {
+    mockHeroService.getHeroes.and.returnValue(of(HEROES));
+    fixture.detectChanges();
+    const heroComponents = fixture.debugElement.queryAll(By.directive(HeroComponent));
+
+    // captures the stub instance
+    const routerLink = heroComponents[0]
+      .query(By.directive(RouterLinkStubDirective))
+      .injector.get(RouterLinkStubDirective);
+
+    heroComponents[0].query(By.css('a')).triggerEventHandler('click', null);
+
+    // check if the path is correct
+    expect(routerLink.navigateTo).toBe('/detail/1337');
+  });
 });
 ```
+
+### Testando Componentes do Angular
 
 #### Service
 
@@ -642,6 +707,119 @@ describe('HeroService', () => {
       httpTestingController.verify();
     });
   });
+});
+```
+
+#### Testes Assíncronos
+
+O Jasmine e o Angular provê algumas formas de efetuar testes que utilizam recursos assíncrono:
+
+* argumento com função de callback para finalização;
+* função utilitária `fakeAsync`;
+* função utilitária `async`.
+
+O componente abaixo simula um comportamento assíncrono antes de chamar a service:
+
+```ts
+import { Component, OnInit, Input } from '@angular/core';
+import { Location } from '@angular/common';
+
+import { Hero } from '../hero';
+import { HeroService } from '../hero.service';
+
+@Component({
+  selector: 'app-hero-detail',
+  templateUrl: './hero-detail.component.html'
+})
+export class HeroDetailComponent implements OnInit {
+  constructor(private heroService: HeroService) {}
+
+  saveWithTimeout(): void {
+    // simulates a debounce to user clicks (in case he hits twice)
+    setTimeout(() => {
+      this.heroService.updateHero(this.hero)
+        .subscribe(() => this.goBack());
+    }, 300);
+  }
+
+  saveWithPromise(): void {
+    // simulates a debounce to user clicks (in case he hits twice)
+    var promise = new Promise(resolve => {
+      this.heroService.updateHero(this.hero)
+        .subscribe(() => this.goBack());
+      resolve();
+    });
+  }
+}
+```
+
+A seguir temos o teste deste componente:
+
+```ts
+import { ComponentFixture, TestBed, fakeAsync, tick, flush, async } from '@angular/core/testing';
+import { HeroDetailComponent } from './hero-detail.component';
+import { HeroService } from '../hero.service';
+import { of } from 'rxjs/internal/observable/of';
+
+describe('HeroDetailComponent', () => {
+  let mockActivatedRoute, mockHeroService, mockLocation;
+
+  let fixture: ComponentFixture<HeroDetailComponent>;
+
+  beforeEach(() => {
+    mockHeroService = jasmine.createSpyObj(['getHero', 'updateHero']);
+
+    TestBed.configureTestingModule({
+      declarations: [HeroDetailComponent],
+      providers: [
+        { provide: HeroService, useValue: mockHeroService }
+      ]
+    });
+    fixture = TestBed.createComponent(HeroDetailComponent);
+  });
+
+  // we can receive `done` to communicate when the test finishes
+  // (but is slow - will hang the runner until the test ends)
+  it('should save later (blocking until timeout)', (done) => {
+    mockHeroService.updateHero.and.returnValue(of({}));
+    fixture.detectChanges();
+
+    fixture.componentInstance.saveWithTimeout();
+
+    setTimeout(() => {
+      expect(mockHeroService.updateHero).toHaveBeenCalled();
+      done();
+    }, 300);
+  });
+
+  // test async code using `fakeAsync` utility where we can manipulate the Zone.js' clock
+  it('should save later (fast forward)', fakeAsync(() => {
+    mockHeroService.updateHero.and.returnValue(of({}));
+    fixture.detectChanges();
+
+    fixture.componentInstance.saveWithTimeout();
+    // fast forward the clock (can be done because Angular runs inside
+    // Zone.js where we can manipulate the clock)
+    tick(300); // only used when we know the time it takes
+
+    // flush force the Zone.js to look for the first pending callback
+    // and fast forward by the time needed
+    flush(); // better wat
+
+    expect(mockHeroService.updateHero).toHaveBeenCalled();
+  }));
+
+  // test async code using `async` utility
+  it('should save later', async(() => {
+    mockHeroService.updateHero.and.returnValue(of({}));
+    fixture.detectChanges();
+
+    fixture.componentInstance.saveWithPromise();
+
+    // will wait until all pending promises resolves thenselves (Zone.js knows if there is any pending promise)
+    fixture.whenStable()
+      .then(() => expect(mockHeroService.updateHero).toHaveBeenCalled());
+  }));
 });
 ```
 
